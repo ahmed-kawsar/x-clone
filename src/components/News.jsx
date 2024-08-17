@@ -5,19 +5,37 @@ import { useEffect, useState } from 'react'
 function News() {
   const [news, setNews] = useState([])
   const [articleNum, setArticleNum] = useState(3)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     fetch(
       'https://saurav.tech/NewsAPI/top-headlines/category/technology/us.json'
     )
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('Network response was not ok')
+        }
+        return res.json()
+      })
       .then((data) => {
         setNews(data.articles)
       })
-      .catch((error) => {
-        console.error('Error fetching news:', error)
+      .catch((err) => {
+        setError(err.message)
+      })
+      .finally(() => {
+        setLoading(false)
       })
   }, [])
+
+  if (loading) {
+    return <p>Loading...</p>
+  }
+
+  if (error) {
+    return <p>Error: {error}</p>
+  }
 
   return (
     <div className='text-gray-700 space-y-2 bg-gray-100 pt-2 rounded-xl'>
